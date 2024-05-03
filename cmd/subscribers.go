@@ -559,7 +559,7 @@ func exportSubscriberData(id int, subUUID string, exportables map[string]bool, a
 }
 
 // sanitizeSQLExp does basic sanitisation on arbitrary
-// SQL query expressions coming from the frontend.
+// SQL query expressions coming from the client.
 func sanitizeSQLExp(q string) string {
 	if len(q) == 0 {
 		return ""

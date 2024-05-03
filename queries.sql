@@ -297,7 +297,7 @@ SELECT (SELECT email FROM prof) as email,
 -- Unprepared statement for issuring arbitrary WHERE conditions for
 -- searching subscribers. While the results are sliced using offset+limit,
 -- there's a COUNT() OVER() that still returns the total result count
--- for pagination in the frontend, albeit being a field that'll repeat
+-- for pagination in the client, albeit being a field that'll repeat
 -- with every resultant row.
 -- %s = arbitrary expression, %s = order by field, %s = order direction
 SELECT subscribers.* FROM subscribers
@@ -515,7 +515,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 -- the list reference may have been deleted.
 -- While the results are sliced using offset+limit,
 -- there's a COUNT() OVER() that still returns the total result count
--- for pagination in the frontend, albeit being a field that'll repeat
+-- for pagination in the client, albeit being a field that'll repeat
 -- with every resultant row.
 SELECT  c.id, c.uuid, c.name, c.subject, c.from_email,
         c.messenger, c.started_at, c.to_send, c.sent, c.type,

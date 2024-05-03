@@ -4,10 +4,6 @@ env:
   - GITHUB_ORG=knadh
   - DOCKER_ORG=listmonk
 
-before:
-  hooks:
-    - make build-frontend
-
 builds:
   - binary: listmonk
     main: ./cmd

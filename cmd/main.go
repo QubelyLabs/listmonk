@@ -83,11 +83,10 @@ var (
 	buildString   string
 	versionString string
 
-	// If these are set in build ldflags and static assets (*.sql, config.toml.sample. ./frontend)
+	// If these are set in build ldflags and static assets (*.sql, config.toml.sample)
 	// are not embedded (in make dist), these paths are looked up. The default values before, when not
 	// overridden by build flags, are relative to the CWD at runtime.
-	appDir      string = "."
-	frontendDir string = "frontend/dist"
+	appDir string = "."
 )
 
 func init() {
@@ -125,7 +124,7 @@ func init() {
 
 	// Connect to the database, load the filesystem to read SQL queries.
 	db = initDB()
-	fs = initFS(appDir, frontendDir, ko.String("static-dir"), ko.String("i18n-dir"))
+	fs = initFS(appDir, ko.String("static-dir"), ko.String("i18n-dir"))
 
 	// Installer mode? This runs before the SQL queries are loaded and prepared
 	// as the installer needs to work on an empty DB.

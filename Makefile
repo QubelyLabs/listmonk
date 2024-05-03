@@ -9,22 +9,12 @@ BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(shell date -u +"%Y-%m-%dT%H:%M:%S%z")
 YARN ?= yarn
 GOPATH ?= $(HOME)/go
 STUFFBIN ?= $(GOPATH)/bin/stuffbin
-FRONTEND_YARN_MODULES = frontend/node_modules
-FRONTEND_DIST = frontend/dist
-FRONTEND_DEPS = \
-	$(FRONTEND_YARN_MODULES) \
-	frontend/index.html \
-	frontend/package.json \
-	frontend/vite.config.js \
-	frontend/.eslintrc.js \
-	$(shell find frontend/fontello frontend/public frontend/src -type f)
 
 BIN := listmonk
 STATIC := config.toml.sample \
 	schema.sql queries.sql \
 	static/public:/public \
 	static/email-templates \
-	frontend/dist:/admin \
 	i18n:/i18n
 
 .PHONY: build
@@ -33,48 +23,19 @@ build: $(BIN)
 $(STUFFBIN):
 	go install github.com/knadh/stuffbin/...
 
-$(FRONTEND_YARN_MODULES): frontend/package.json frontend/yarn.lock
-	cd frontend && $(YARN) install
-	touch -c $(FRONTEND_YARN_MODULES)
-
 # Build the backend to ./listmonk.
 $(BIN): $(shell find . -type f -name "*.go") go.mod go.sum
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" cmd/*.go
 
-# Run the backend in dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
+# Run the backend in dev mode.
 .PHONY: run
 run:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go
-
-# Build the JS frontend into frontend/dist.
-$(FRONTEND_DIST): $(FRONTEND_DEPS)
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) build
-	touch -c $(FRONTEND_DIST)
-
-
-.PHONY: build-frontend
-build-frontend: $(FRONTEND_DIST)
-
-# Run the JS frontend server in dev mode.
-.PHONY: run-frontend
-run-frontend:
-	export VUE_APP_VERSION="${VERSION}" && cd frontend && $(YARN) dev
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' cmd/*.go
 
 # Run Go tests.
 .PHONY: test
 test:
 	go test ./...
-
-# Bundle all static assets including the JS frontend into the ./listmonk binary
-# using stuffbin (installed with make deps).
-.PHONY: dist
-dist: $(STUFFBIN) build build-frontend pack-bin
-
-# pack-releases runns stuffbin packing on the given binary. This is used
-# in the .goreleaser post-build hook.
-.PHONY: pack-bin
-pack-bin: build-frontend $(BIN) $(STUFFBIN)
-	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # Use goreleaser to do a dry run producing local builds.
 .PHONY: release-dry
@@ -98,10 +59,10 @@ dev-docker: build-dev-docker ## Build and spawns docker containers for the entir
 	cd dev; \
 	docker compose up
 
-# Run the backend in docker-dev mode. The frontend assets in dev mode are loaded from disk from frontend/dist.
+# Run the backend in docker-dev mode.
 .PHONY: run-backend-docker
 run-backend-docker:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' -X 'main.frontendDir=frontend/dist'" cmd/*.go --config=dev/config.toml
+	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}' cmd/*.go --config=dev/config.toml
 
 # Tear down the complete local development docker suite.
 .PHONY: rm-dev-docker

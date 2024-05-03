@@ -49,9 +49,6 @@ import (
 
 const (
 	queryFilePath = "queries.sql"
-
-	// Root URI of the admin frontend.
-	adminRoot = "/admin"
 )
 
 // constants contains static, constant config values required by the app.
@@ -161,7 +158,7 @@ func initConfigFiles(files []string, ko *koanf.Koanf) {
 
 // initFileSystem initializes the stuffbin FileSystem to provide
 // access to bundled static assets to the app.
-func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem {
+func initFS(appDir, staticDir, i18nDir string) stuffbin.FileSystem {
 	var (
 		// stuffbin real_path:virtual_alias paths to map local assets on disk
 		// when there an embedded filestystem is not found.
@@ -171,12 +168,6 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 			"./config.toml.sample:config.toml.sample",
 			"./queries.sql:queries.sql",
 			"./schema.sql:schema.sql",
-		}
-
-		frontendFiles = []string{
-			// Admin frontend's static assets accessible at /admin/* during runtime.
-			// These paths are sourced from frontendDir.
-			"./:/admin",
 		}
 
 		staticFiles = []string{
@@ -213,11 +204,10 @@ func initFS(appDir, frontendDir, staticDir, i18nDir string) stuffbin.FileSystem 
 		}
 	}
 
-	// If the embed failed, load app and frontend files from the compile-time paths.
+	// If the embed failed, load app from the compile-time paths.
 	files := []string{}
 	if !hasEmbed {
 		files = append(files, joinFSPaths(appDir, appFiles)...)
-		files = append(files, joinFSPaths(frontendDir, frontendFiles)...)
 	}
 
 	// Irrespective of the embeds, if there are user specified static or i18n paths,
@@ -780,9 +770,6 @@ func initHTTPServer(app *App) *echo.Echo {
 
 	// Public (subscriber) facing static files.
 	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
-
-	// Admin (frontend) facing static files.
-	srv.GET("/admin/static/*", echo.WrapHandler(fSrv))
 
 	// Public (subscriber) facing media upload files.
 	if ko.String("upload.provider") == "filesystem" && ko.String("upload.filesystem.upload_uri") != "" {

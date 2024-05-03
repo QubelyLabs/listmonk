@@ -100,7 +100,7 @@ func handleUpdateSettings(c echo.Context) error {
 			has = true
 		}
 
-		// Assign a UUID. The frontend only sends a password when the user explicitly
+		// Assign a UUID. The client only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of SMTP blocks with the array in the DB.
@@ -112,7 +112,7 @@ func handleUpdateSettings(c echo.Context) error {
 		// This is a common mistake when copy-pasting SMTP settings.
 		set.SMTP[i].Host = strings.TrimSpace(s.Host)
 
-		// If there's no password coming in from the frontend, copy the existing
+		// If there's no password coming in from the client, copy the existing
 		// password by matching the UUID.
 		if s.Password == "" {
 			for _, c := range cur.SMTP {
@@ -130,7 +130,7 @@ func handleUpdateSettings(c echo.Context) error {
 
 	// Bounce boxes.
 	for i, s := range set.BounceBoxes {
-		// Assign a UUID. The frontend only sends a password when the user explicitly
+		// Assign a UUID. The client only sends a password when the user explicitly
 		// changes the password. In other cases, the existing password in the DB
 		// is copied while updating the settings and the UUID is used to match
 		// the incoming array of blocks with the array in the DB.
@@ -146,7 +146,7 @@ func handleUpdateSettings(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("settings.bounces.invalidScanInterval"))
 		}
 
-		// If there's no password coming in from the frontend, copy the existing
+		// If there's no password coming in from the client, copy the existing
 		// password by matching the UUID.
 		if s.Password == "" {
 			for _, c := range cur.BounceBoxes {
@@ -229,7 +229,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// If there are any active campaigns, don't do an auto reload and
-	// warn the user on the frontend.
+	// warn the user on the client.
 	if app.manager.HasRunningCampaigns() {
 		app.Lock()
 		app.needsRestart = true

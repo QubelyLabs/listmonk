@@ -457,7 +457,7 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 	// Count the total number of lines in the file. This doesn't distinguish
 	// between "blank" and non "blank" lines, and is only used to derive
-	// the progress percentage for the frontend.
+	// the progress percentage for the client.
 	numLines, err := countLines(f)
 	if err != nil {
 		s.log.Printf("error counting lines in '%s': '%v'", srcPath, err)

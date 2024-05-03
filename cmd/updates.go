@@ -18,7 +18,7 @@ type remoteUpdateResp struct {
 }
 
 // AppUpdate contains information of a new update available to the app that
-// is sent to the frontend.
+// is sent to the client.
 type AppUpdate struct {
 	Version string `json:"version"`
 	URL     string `json:"url"`

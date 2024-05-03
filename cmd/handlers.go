@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"crypto/subtle"
 	"net/http"
-	"path"
 	"regexp"
 
 	"github.com/knadh/paginator"
@@ -67,14 +65,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 
 	// Admin JS app views.
 	// /admin/static/* file server is registered in initHTTPServer().
-	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
-	})
-
-	g.GET(path.Join(adminRoot, ""), handleAdminPage)
-	g.GET(path.Join(adminRoot, "/custom.css"), serveCustomApperance("admin.custom_css"))
-	g.GET(path.Join(adminRoot, "/custom.js"), serveCustomApperance("admin.custom_js"))
-	g.GET(path.Join(adminRoot, "/*"), handleAdminPage)
+	e.GET("/", handleHealthCheck)
 
 	// API endpoints.
 	g.GET("/api/health", handleHealthCheck)
@@ -227,20 +218,6 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	e.RouteNotFound("/admin/*", func(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "404 page not found")
 	})
-}
-
-// handleAdminPage is the root handler that renders the Javascript admin frontend.
-func handleAdminPage(c echo.Context) error {
-	app := c.Get("app").(*App)
-
-	b, err := app.fs.Read(path.Join(adminRoot, "/index.html"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	b = bytes.ReplaceAll(b, []byte("asset_version"), []byte(app.constants.AssetVersion))
-
-	return c.HTMLBlob(http.StatusOK, b)
 }
 
 // handleHealthCheck is a healthcheck endpoint that returns a 200 response.
