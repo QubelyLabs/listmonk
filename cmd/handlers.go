@@ -201,9 +201,6 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 		e.GET("/archive/latest", handleCampaignArchivePageLatest)
 	}
 
-	e.GET("/public/custom.css", serveCustomApperance("public.custom_css"))
-	e.GET("/public/custom.js", serveCustomApperance("public.custom_js"))
-
 	// Public health API endpoint.
 	e.GET("/health", handleHealthCheck)
 
@@ -223,39 +220,6 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 // handleHealthCheck is a healthcheck endpoint that returns a 200 response.
 func handleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
-}
-
-// serveCustomApperance serves the given custom CSS/JS appearance blob
-// meant for customizing public and admin pages from the admin settings UI.
-func serveCustomApperance(name string) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var (
-			app = c.Get("app").(*App)
-
-			out []byte
-			hdr string
-		)
-
-		switch name {
-		case "admin.custom_css":
-			out = app.constants.Appearance.AdminCSS
-			hdr = "text/css; charset=utf-8"
-
-		case "admin.custom_js":
-			out = app.constants.Appearance.AdminJS
-			hdr = "application/javascript; charset=utf-8"
-
-		case "public.custom_css":
-			out = app.constants.Appearance.PublicCSS
-			hdr = "text/css; charset=utf-8"
-
-		case "public.custom_js":
-			out = app.constants.Appearance.PublicJS
-			hdr = "application/javascript; charset=utf-8"
-		}
-
-		return c.Blob(http.StatusOK, hdr, out)
-	}
 }
 
 // basicAuth middleware does an HTTP BasicAuth authentication for admin handlers.

@@ -8,6 +8,14 @@ listmonk is a standalone, self-hosted, newsletter and mailing list manager. It i
 
 Visit [listmonk.app](https://listmonk.app) for more info. Check out the [**live demo**](https://demo.listmonk.app).
 
+# Run
+```bash
+ $ make
+ $ ./listmonk --new-config
+ $ ./listmonk --install
+ $ ./listmonk
+```
+
 ## Installation
 
 ### Docker
